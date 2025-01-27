@@ -76,14 +76,13 @@
 ## Project Structure 📂
 
   PolyForma-ChatBot/
-├── models/                   # Local model storage
-│   └── mistral-7b...gguf    # Quantized LLM
-│                 
-├── audio_handler.py     # Voice processing
-├── llm_processor.py     # Model interactions
-├── session_manager.py   # History tracking
-├── app.py                    # Main application
-├── requirements.txt          # Dependency list
+├── models/ # Local model storage
+│ └── mistral-7b-instruct-v0.2.Q5_K_M.gguf # Quantized LLM
+├── audio_handler.py # Voice processing
+├── llm_processor.py # Model interactions
+├── session_manager.py # History tracking
+├── app.py # Main application
+└── requirements.txt # Dependency list
 
 ## Key Functionalities 🚀
 
