@@ -58,23 +58,36 @@
    ```bash
    git clone https://github.com/your-username/PolyForma-ChatBot.git
    cd PolyForma-ChatBot
+   ```
 
 2. **Initialize Virtual Environment**
+    ```bash
     python -m venv venv
     source venv/bin/activate  # Linux/Mac
     venv\Scripts\activate     # Windows
+    ```
 
 3. **Install Dependencies**
+    ```bash
     pip install -r requirements.txt
-
+    ```
 4. **Model Setup**
+ - Download Mistral-7B model (official source)
+  
+ - Place `mistral-7b-instruct-v0.2.Q5_K_M.gguf` in the `/models` directory.
+
+ - Other models auto-download on the first run.
 
 
 5. **Launch Application**
+     ```bash
     streamlit run app.py
+    ```
+    
 
 ## Project Structure 📂
 
+```bash
   PolyForma-ChatBot/
 ├── models/ # Local model storage
 │ └── mistral-7b-instruct-v0.2.Q5_K_M.gguf # Quantized LLM
@@ -83,6 +96,8 @@
 ├── session_manager.py # History tracking
 ├── app.py # Main application
 └── requirements.txt # Dependency list
+```
+
 
 ## Key Functionalities 🚀
 
