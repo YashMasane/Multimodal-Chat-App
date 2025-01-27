@@ -2,13 +2,15 @@
  
 *A multimodal chatbot supporting text/audio input with conversation history and audio summarization*
 
+![PolyForma ChatBot Screenshot](img/screenshot.png)
+
 ## Table of Contents
 - [Features](#features-)
 - [Tech Stack](#tech-stack-)
 - [Installation](#installation-)
 - [Usage Guide](#usage-guide-)
 - [Project Structure](#project-structure-)
-- [Configuration](#configuration-)
+- [Key Functionalities](#Key Functionalities-)
 - [License](#license-)
 - [Acknowledgments](#acknowledgments-)
 - [Contact](#contact-)
@@ -71,15 +73,6 @@
 5. **Launch Application**
     streamlit run app.py
 
-## Advanced Features 🚀
-
-### Session History 📚
-- **View Conversations**: Access previous chats via the sidebar
-- **Export Options**: Download history as:
-  ```python
-  📁 JSON (structured data format)
-  📄 TXT (readable text format)
-
 ## Project Structure 📂
 
   PolyForma-ChatBot/
@@ -92,3 +85,35 @@
 ├── app.py                    # Main application
 ├── requirements.txt          # Dependency list
 
+## Key Functionalities 🚀
+
+- **Text and Audio Input**  
+  Integrates natural language processing (NLP) and speech recognition for seamless interaction.
+
+- **Session Persistence**  
+  Saves each session’s history to ensure continuity in user interaction.
+
+- **Audio Summarization**  
+  Transforms long audio content into concise summaries using state-of-the-art models.
+
+## Future Enhancements
+
+- Integration of multilingual support for global reach.
+- Advanced customization options for conversation flow.
+- Enhanced summarization capabilities with keyword extraction.
+
+## Contributions
+
+Contributions are welcome! Please fork the repository, make changes, and submit a pull request.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Acknowledgments
+
+- **Mistral-7B-Instruct**: For powering conversational AI.
+- **BAAI**: For their exceptional embedding model.
+- **OpenAI**: For the Whisper model used in audio-to-text conversion.
+- **Streamlit**: For providing a simple and effective way to build the user interface.
+- **Hugging Face**: For enabling seamless integration of cutting-edge NLP models.
