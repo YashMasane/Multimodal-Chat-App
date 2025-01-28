@@ -40,6 +40,6 @@ class ChatChain:
         self.llm_chain = create_llm_chain(llm=llm, chat_prompt=chat_prompt, memory=self.memory)
 
     def run(self, user_input):
-        return self.llm_chain.run(human_input=user_input, history=self.memory.chat_memory.messages, stop=['Human:'])
+        return self.llm_chain.invoke(input=user_input, history=self.memory.chat_memory.messages, stop=['Human:'])['text']
 
         
