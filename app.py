@@ -3,7 +3,9 @@ from llm_chains import load_normal_chain
 from langchain.memory import StreamlitChatMessageHistory
 from streamlit_mic_recorder import mic_recorder
 from utils import get_timestamp, save_chat_history_json, load_chat_history_json
+from image_handler import handle_image
 from audio_handler import transcribe_audio
+from PIL import Image
 import os
 import yaml
 
@@ -74,7 +76,9 @@ def main():
     with send_button_column:
             send_button = st.button('Send', key='send_button', on_click=clear_input)
 
-    uploaded_audio = st.sidebar.file_uploader('Upload an audio', type=['wav', 'mp3', 'ogg'])
+    uploaded_audio = st.sidebar.file_uploader('Upload an Audio', type=['wav', 'mp3', 'ogg'])
+    uploaded_image = st.sidebar.file_uploader('Upload an Image', type=['jpg', 'jpeg', 'png'])
+
 
     if uploaded_audio:
         file_transcribed_audio = transcribe_audio(uploaded_audio.getvalue())
@@ -85,8 +89,21 @@ def main():
         print(transcribed_audio)
         llm_chat.run(transcribed_audio)
 
-    print(voice_recording)
     if send_button or st.session_state.send_input:
+        if uploaded_image:
+            image = Image.open(uploaded_image)
+            with chat_container:
+                st.image(image, caption="Uploaded Image", use_column_width=True)
+            with st.spinner('Processing image....'):
+                user_message = 'Discribed this image in detail'
+                if st.session_state.user_question != "":
+                    user_message = st.session_state.user_question
+                    st.session_state.user_question = ""
+                llm_answer = handle_image(uploaded_image.getvalue(), user_message)
+                chat_history.add_user_message(user_message)
+                chat_history.add_ai_message(llm_answer) 
+
+
         if st.session_state.user_question != "":
             st.chat_message('User').write(st.session_state.user_question)
             llm_response = llm_chat.run(st.session_state.user_question)
