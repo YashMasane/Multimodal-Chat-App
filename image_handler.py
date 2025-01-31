@@ -29,7 +29,6 @@ def handle_image(image_bytes, user_message):
             }
         ]
     )
-    print(output)
     return output["choices"][0]["message"]["content"]
 
 def convert_image_to_base64(image_path):

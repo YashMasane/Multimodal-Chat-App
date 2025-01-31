@@ -1,4 +1,7 @@
 # Byte-compiled / optimized / DLL files
+chat_sessions
+chroma_db
+models
 __pycache__/
 *.py[cod]
 *$py.class

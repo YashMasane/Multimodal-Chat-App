@@ -1,5 +1,6 @@
 streamlit-mic-recorder
 InstructorEmbedding
+sentence_transformers
 ctransformers
 transformers
 langchain
@@ -8,3 +9,7 @@ streamlit
 pypdfium2
 librosa
 pyyaml
+torch
+llama-cpp-python
+pydantic
+Chromadb

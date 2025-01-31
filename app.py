@@ -1,10 +1,11 @@
 import streamlit as st
-from llm_chains import load_normal_chain
+from llm_chains import load_normal_chain, load_pdf_chat_chain
 from langchain.memory import StreamlitChatMessageHistory
 from streamlit_mic_recorder import mic_recorder
 from utils import get_timestamp, save_chat_history_json, load_chat_history_json
 from image_handler import handle_image
 from audio_handler import transcribe_audio
+from pdf_handler import add_documents_to_db
 from PIL import Image
 import os
 import yaml
@@ -13,6 +14,10 @@ with open('config.yaml') as f:
     config = yaml.safe_load(f)
 
 def load_chain(chat_history):
+    if st.session_state.pdf_chat:
+        print("loading pdf chat chain")
+        return load_pdf_chat_chain(chat_history)
+    
     return load_normal_chain(chat_history=chat_history)
 
 def clear_input():
@@ -25,6 +30,9 @@ def set_send_input():
 
 def index_tracker():
     st.session_state.session_index_tracker = st.session_state.session_key
+
+def toggle_pdf_chat():
+    st.session_state.pdf_chat = True
 
 def save_chat_history():
     if st.session_state.history != []:
@@ -56,6 +64,8 @@ def main():
 
     index = chat_sessions.index(st.session_state.session_index_tracker)
     st.sidebar.selectbox('Select a chat session', chat_sessions, key='session_key', index=index, on_change=index_tracker)
+    st.sidebar.toggle('PDF Session', key='pdf_chat', value=False)
+
     
     if st.session_state.session_key != "new_session":
         file_path = os.path.join(config['chat_history_path'], st.session_state.session_key)
@@ -78,8 +88,11 @@ def main():
 
     uploaded_audio = st.sidebar.file_uploader('Upload an Audio', type=['wav', 'mp3', 'ogg'])
     uploaded_image = st.sidebar.file_uploader('Upload an Image', type=['jpg', 'jpeg', 'png'])
+    uploaded_pdf = st.sidebar.file_uploader('Upload a PDF', accept_multiple_files=True, key='pdf_uploaded', type=['pdf'], on_change=toggle_pdf_chat)
 
-
+    if uploaded_pdf:
+        with st.spinner('Processing pdf...'):
+            add_documents_to_db(uploaded_pdf)
     if uploaded_audio:
         file_transcribed_audio = transcribe_audio(uploaded_audio.getvalue())
         llm_chat.run("Sumarized this text", file_transcribed_audio)
@@ -88,12 +101,13 @@ def main():
         transcribed_audio = transcribe_audio(voice_recording['bytes'])
         print(transcribed_audio)
         llm_chat.run(transcribed_audio)
+    
 
     if send_button or st.session_state.send_input:
         if uploaded_image:
             image = Image.open(uploaded_image)
             with chat_container:
-                st.image(image, caption="Uploaded Image", use_column_width=True)
+                st.image(image, caption="Uploaded Image")
             with st.spinner('Processing image....'):
                 user_message = 'Discribed this image in detail'
                 if st.session_state.user_question != "":

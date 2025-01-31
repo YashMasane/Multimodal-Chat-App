@@ -4,7 +4,7 @@ from llm_chains import load_vectordb, create_embedding
 import pypdfium2
 
 def get_pdf_text(pdf_bytes_list):
-    return [extract_text_from_pdf(pdf_bytes.get_value()) for pdf_bytes in pdf_bytes_list]
+    return [extract_text_from_pdf(pdf_bytes) for pdf_bytes in pdf_bytes_list]
 
 def extract_text_from_pdf(pdf_bytes):
     pdf_file = pypdfium2.PdfDocument(pdf_bytes)
