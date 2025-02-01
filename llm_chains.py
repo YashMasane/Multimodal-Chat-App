@@ -1,11 +1,11 @@
 from langchain.chains import StuffDocumentsChain, LLMChain, ConversationalRetrievalChain
-from langchain_community.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings, HuggingFaceBgeEmbeddings
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import PromptTemplate
 from langchain_community.llms import LlamaCpp
 from langchain_community.vectorstores import Chroma
 from langchain.chains.retrieval_qa.base import RetrievalQA
-from prompt_templates import memory_prompt_template
+from prompt_templates import memory_prompt_template, pdf_prompt_template
 import chromadb
 import yaml
 
@@ -15,13 +15,16 @@ with open('config.yaml') as f:
 def create_llm(model_path=config['model_path']['small']):
     llm = LlamaCpp(
     model_path=model_path,  
-    n_ctx=8192,  
+    n_ctx=2048,  
     n_gpu_layers=-1 
 )
     return llm
 
 def create_embedding(embedding_path=config['embedding_path']):
-    return HuggingFaceBgeEmbeddings(model_name=embedding_path)
+    model_kwargs = {"device": "cpu"}
+    encode_kwargs = {"normalize_embeddings": True}
+    return HuggingFaceEmbeddings( model_name=embedding_path, model_kwargs=model_kwargs, 
+                                 encode_kwargs=encode_kwargs)
 
 def create_chat_memmory(chat_history):
     return ConversationBufferWindowMemory(memory_key='history', chat_memory=chat_history, k=3)
@@ -50,22 +53,49 @@ def load_vectordb(embeddings):
 def load_pdf_chat_chain(chat_history):
     return PdfChatChain(chat_history)
 
-def load_retrieval_chain(llm, memory, vector_db):
-    return RetrievalQA.from_llm(llm=llm, memory=memory, retriever=vector_db.as_retriever(kwargs={"k": 3}))
+def load_url_chat_chain(chat_history):
+    return UrlChatChain(chat_history)
+
+# In load_retrieval_chain()
+def load_retrieval_chain(llm, vector_db, memory):  # Add memory parameter
+    retriever = vector_db.as_retriever(search_kwargs={"k": 3})
+    
+    # Modified prompt template
+    prompt = PromptTemplate(
+        template=pdf_prompt_template,
+        input_variables=["context", "question"]  # Ensure these match your template
+    )
+    
+    return RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever,
+        input_key="question",  
+        chain_type="stuff",  
+        chain_type_kwargs={
+            "prompt": prompt,
+        },
+        return_source_documents=True,
+        output_key='result'
+    )
 
 
 class PdfChatChain:
-
     def __init__(self, chat_history):
         self.memory = create_chat_memmory(chat_history)
         self.vector_db = load_vectordb(create_embedding())
         llm = create_llm()
-        self.llm_chain = load_retrieval_chain(llm, self.memory, self.vector_db)
+        self.llm_chain = load_retrieval_chain(llm, self.vector_db, self.memory)
 
     def run(self, user_input):
         print("Pdf chat chain is running...")
-        return self.llm_chain.invoke(input=user_input, history=self.memory.chat_memory.messages ,stop=["Human:"])['result']
-    
+        # Pass input through memory first
+        return self.llm_chain.invoke({"question": user_input, "history": self.memory.chat_memory.messages})['result']  
+
+
+class UrlChatChain(PdfChatChain):
+    def __init__(self, chat_history):
+        super().__init__(chat_history)
+
 
 class ChatChain:
 
@@ -77,5 +107,3 @@ class ChatChain:
 
     def run(self, user_input):
         return self.llm_chain.invoke(input=user_input, history=self.memory.chat_memory.messages, stop=['Human:'])['text']
-
-        

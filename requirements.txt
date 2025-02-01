@@ -13,3 +13,4 @@ torch
 llama-cpp-python
 pydantic
 Chromadb
+bs4
